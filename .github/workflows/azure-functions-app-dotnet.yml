@@ -88,4 +88,5 @@ jobs:
                         -ResourceGroupName ${{ env.AZURE_FUNCTIONAPP_RESOURCE_GROUP }} `
                         -Name ${{ env.AZURE_FUNCTIONAPP_NAME }}
                       $profile = ""
+                      echo $profile
                   azPSVersion: "latest"
