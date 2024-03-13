@@ -1,0 +1,11 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "6e3498d9-c0dc-4457-b12d-358d0e43277d",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=staccompetencetest;EndpointSuffix=core.windows.net;AccountKey=uVk9mQ0PiH1oacSOdpc9A4cmMpq1wn51z114H2GNnDkT5hdTS76VdfLmL8x1Hc2hAa7TuIUU7tMF+AStPfj7qQ==",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "DefaultEndpointsProtocol=https;AccountName=staccompetencetest;EndpointSuffix=core.windows.net;AccountKey=uVk9mQ0PiH1oacSOdpc9A4cmMpq1wn51z114H2GNnDkT5hdTS76VdfLmL8x1Hc2hAa7TuIUU7tMF+AStPfj7qQ==",
+    "WEBSITE_CONTENTSHARE": "bff-competence-test-cf56cd3a"
+  }
+}
