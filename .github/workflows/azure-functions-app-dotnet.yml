@@ -52,8 +52,10 @@ jobs:
                         -ResourceGroupName ${{ env.AZURE_FUNCTIONAPP_RESOURCE_GROUP}} `
                         -Name ${{ env.AZURE_FUNCTIONAPP_NAME }}
                       $profile = $profile.Replace("`r", "").Replace("`n", "")
+                      echo $profile
                       "profile=$profile" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
                   azPSVersion: "latest"
+                  
 
             - name: "Checkout GitHub Action"
               uses: actions/checkout@v3
