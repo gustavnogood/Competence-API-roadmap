@@ -23,7 +23,7 @@ namespace Company.Function
         {
             CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==");//, new ManagedIdentityCredential());
 
-            Container container = client.GetContainer("competence", "movies") ?? throw new NullReferenceException();
+            Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
@@ -45,7 +45,7 @@ namespace Company.Function
         {
             CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==");//, new ManagedIdentityCredential());
 
-            Container container = client.GetContainer("competence", "movies") ?? throw new NullReferenceException();
+            Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
 
             FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
             var result = new HashSet<RoadmapResponse>();
@@ -60,18 +60,34 @@ namespace Company.Function
         }
         public class RoadmapRequest
         {
-            
-            public String id;
-            public String name;
-
-            public String description;
+            public string id { get; set; }
+            public string name { get; set; }
+            public string description { get; set; }
+            public List<Role> roles { get; set; }
         }
+
+        public class Role
+        {
+            public string roleId { get; set; }
+            public string name { get; set; }
+            public string description { get; set; }
+            public List<Skill> skills { get; set; }
+        }
+
+        public class Skill
+        {
+            public string skillId { get; set; }
+            public string name { get; set; }
+            public string description { get; set; }
+        }
+
 
         public class RoadmapResponse
         {
-            public String id;
-            public String name;
-            public String description;
+            public string id { get; set; }
+            public string name { get; set; }
+            public string description { get; set; }
+            public List<Role> roles { get; set; }
         }
     }
 
