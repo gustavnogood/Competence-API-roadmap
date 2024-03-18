@@ -9,55 +9,76 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Microsoft.Azure.Cosmos;
-using Azure.Identity;
-
+using Azure.Identity; 
 
 namespace Company.Function
 {
     public static class RoadmapFunction
     {
+        private static readonly string cosmosEndpoint = "https://cosmos-competence-test.documents.azure.com:443/";
+
+        private static CosmosClient cosmosClient;
+
+        static RoadmapFunction()
+        {
+            cosmosClient = new CosmosClient(cosmosEndpoint, new ManagedIdentityCredential());
+        }
+
         [FunctionName("CreateRoadmapFunction")]
         public static async Task<IActionResult> CreateRoadmap(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "roadmap")] HttpRequest req,
-    ILogger log)
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "roadmap")] HttpRequest req,
+            ILogger log)
         {
-            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==");//, new ManagedIdentityCredential());
-
-            Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-
-            RoadmapRequest data = JsonConvert.DeserializeObject<RoadmapRequest>(requestBody);
-            data.id = Guid.NewGuid().ToString();
-
-            if (!string.IsNullOrEmpty(data.name))
+            try
             {
-                ItemResponse<RoadmapRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.name));
-                return new OkObjectResult(request.Resource);
+                Container container = cosmosClient.GetContainer("competence", "roadmap");
+
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+
+                RoadmapRequest data = JsonConvert.DeserializeObject<RoadmapRequest>(requestBody);
+                data.id = Guid.NewGuid().ToString();
+
+                if (!string.IsNullOrEmpty(data.name))
+                {
+                    ItemResponse<RoadmapRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.name));
+                    return new OkObjectResult(request.Resource);
+                }
+                return new BadRequestObjectResult("Failed to upload: no roadmap name found in the request.");
             }
-            return new OkObjectResult("Failed to upload, no roadmap found in request.");
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Error creating roadmap");
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
         [FunctionName("GetRoadmapFunction")]
         public static async Task<IActionResult> FetchRoadmaps(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
-        ILogger log)
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "roadmap")] HttpRequest req,
+            ILogger log)
         {
-            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==");//, new ManagedIdentityCredential());
-
-            Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
-
-            FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
-            var result = new HashSet<RoadmapResponse>();
-            while (queryResultSetIterator.HasMoreResults)
+            try
             {
-                foreach (var roadmap in await queryResultSetIterator.ReadNextAsync())
+                Container container = cosmosClient.GetContainer("competence", "roadmap");
+
+                FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
+                var result = new HashSet<RoadmapResponse>();
+                while (queryResultSetIterator.HasMoreResults)
                 {
-                    result.Add(roadmap);
+                    foreach (var roadmap in await queryResultSetIterator.ReadNextAsync())
+                    {
+                        result.Add(roadmap);
+                    }
                 }
+                return new OkObjectResult(result);
             }
-            return new OkObjectResult(result);
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Error fetching roadmaps");
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
+
         public class RoadmapRequest
         {
             public string id { get; set; }
@@ -81,7 +102,6 @@ namespace Company.Function
             public string description { get; set; }
         }
 
-
         public class RoadmapResponse
         {
             public string id { get; set; }
@@ -90,6 +110,4 @@ namespace Company.Function
             public List<Role> roles { get; set; }
         }
     }
-
-
 }
