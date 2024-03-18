@@ -9,7 +9,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Microsoft.Azure.Cosmos;
-using Azure.Identity; 
+using Azure.Identity;
+using Azure.Core;
 
 namespace Company.Function
 {
@@ -21,7 +22,19 @@ namespace Company.Function
 
         static RoadmapFunction()
         {
-            cosmosClient = new CosmosClient(cosmosEndpoint, new DefaultAzureCredential());
+            InitializeCosmosClient().Wait(); // Call an async method synchronously during initialization
+
+            async Task InitializeCosmosClient() // Mark method as async and return Task
+            {
+                // Obtain access token using Managed Identity
+                var tokenCredential = new DefaultAzureCredential();
+                var accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(scopes: new[] { "https://cosmos.azure.com/.default" }));
+
+                
+
+                // Initialize Cosmos Client with access token
+                cosmosClient = new CosmosClient(cosmosEndpoint, tokenCredential);
+            }
         }
 
         [FunctionName("CreateRoadmapFunction")]
