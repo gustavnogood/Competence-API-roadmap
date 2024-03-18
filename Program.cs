@@ -21,7 +21,7 @@ namespace Company.Function
 
         static RoadmapFunction()
         {
-            cosmosClient = new CosmosClient(cosmosEndpoint, new ManagedIdentityCredential());
+            cosmosClient = new CosmosClient(cosmosEndpoint, new DefaultAzureCredential());
         }
 
         [FunctionName("CreateRoadmapFunction")]
