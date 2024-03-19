@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using Microsoft.Azure.Cosmos;
 using Azure.Identity;
-using Azure.Core;
+using Microsoft.Extensions.Azure;
 
 namespace Company.Function
 {
@@ -22,24 +22,21 @@ namespace Company.Function
 
         static RoadmapFunction()
         {
-            InitializeCosmosClient().Wait(); // Call an async method synchronously during initialization
+            InitializeCosmosClient();
 
-            async Task InitializeCosmosClient() // Mark method as async and return Task
+            void InitializeCosmosClient()
             {
                 // Obtain access token using Managed Identity
                 var tokenCredential = new DefaultAzureCredential();
-                var accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(scopes: new[] { "https://cosmos.azure.com/.default" }));
 
-                
-
-                // Initialize Cosmos Client with access token
+                // Initialize Cosmos Client with access token and endpoint
                 cosmosClient = new CosmosClient(cosmosEndpoint, tokenCredential);
             }
         }
 
         [FunctionName("CreateRoadmapFunction")]
         public static async Task<IActionResult> CreateRoadmap(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "roadmap")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "roadmap")] HttpRequest req,
             ILogger log)
         {
             try
@@ -67,7 +64,7 @@ namespace Company.Function
 
         [FunctionName("GetRoadmapFunction")]
         public static async Task<IActionResult> FetchRoadmaps(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "roadmap")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
             ILogger log)
         {
             try
