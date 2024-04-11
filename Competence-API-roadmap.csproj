@@ -18,8 +18,11 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="4.5.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.2.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.2" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="7.5.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.5.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.3.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.0" />
   </ItemGroup>
 
   <ItemGroup>

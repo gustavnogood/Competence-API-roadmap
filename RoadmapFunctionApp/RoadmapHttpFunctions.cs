@@ -18,12 +18,14 @@ namespace RoadmapFunctionApp
         {
             try
             {
-                return await RoadmapService.CreateRoadmap(req, log);
+                var roadmapService = new RoadmapService();
+                return await roadmapService.CreateRoadmap(req, log);
             }
             catch (System.Exception ex)
             {
                 log.LogError(ex, "Error creating roadmap");
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                //kolla upp rätt respons
             }
         }
 
@@ -40,6 +42,8 @@ namespace RoadmapFunctionApp
             {
                 log.LogError(ex, "Error fetching roadmaps");
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                //kolla upp rätt respons
+                //
             }
         }
     }
