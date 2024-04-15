@@ -53,7 +53,6 @@ namespace RoadmapFunctionApp
             var jwtToken = tokenHandler.ReadJwtToken(accessToken);
 
             // Extract user info from jwtToken.Claims and return it
-            // This depends on how your access tokens are structured
             var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier);
             var emailClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email);
 

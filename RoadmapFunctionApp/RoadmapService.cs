@@ -9,27 +9,18 @@ using Microsoft.Extensions.Logging;
 
 namespace RoadmapFunctionApp
 {
-    public class RoadmapService
+public class RoadmapService
+{
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ITokenValidator tokenValidator;
+    private readonly CosmosClient _cosmosClient;
+
+    public RoadmapService(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient, ITokenValidator tokenValidator)
     {
-
-        private static readonly string cosmosEndpoint = "https://cosmos-competence-test.documents.azure.com:443/";
-        private readonly CosmosClient _cosmosClient;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ITokenValidator tokenValidator;
-        private readonly IUpsertUser _upsertUser;
-        private Container usersContainer;
-
-        public RoadmapService()
-        {
-        }
-
-        public RoadmapService(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient, ITokenValidator tokenValidator, IUpsertUser upsertUser)
-        {
-            _httpContextAccessor = httpContextAccessor;
-            usersContainer = cosmosClient.GetContainer("competence", "users");
-            this.tokenValidator = tokenValidator;
-            _upsertUser = upsertUser;
-        }
+        _httpContextAccessor = httpContextAccessor;
+        this.tokenValidator = tokenValidator;
+        _cosmosClient = cosmosClient;
+    }
 
         public async Task<IActionResult> CreateRoadmap(HttpRequest req, ILogger log)
         {
@@ -39,13 +30,14 @@ namespace RoadmapFunctionApp
 
                 var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
                 tokenValidator.ValidateToken(accessToken);
-                var userId = await _upsertUser.Execute(accessToken);
+                var userInfo = tokenValidator.GetUserInfoFromToken(accessToken);
                 Container container = _cosmosClient.GetContainer("competence", "roadmap");
 
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
                 RoadmapRequest data = JsonConvert.DeserializeObject<RoadmapRequest>(requestBody);
-                data.id = userId;
+                data.id = userInfo.ToString();
+
 
                 if (!string.IsNullOrEmpty(data.name))
                 {
@@ -65,6 +57,8 @@ namespace RoadmapFunctionApp
             }
         }
 
+
+
         public async Task<IActionResult> FetchRoadmaps(HttpRequest req, ILogger log)
         {
             var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
@@ -82,12 +76,6 @@ namespace RoadmapFunctionApp
                 }
             }
             return new OkObjectResult(result);
-        }
-        private UserInfo ExtractUserInfo(string accessToken)
-        {
-            // Your code to extract user info from the access token...
-
-            return userInfo;
         }
     }
 }

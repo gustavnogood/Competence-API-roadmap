@@ -1,5 +1,5 @@
-using Microsoft.Azure.Cosmos;
 using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
 
 namespace RoadmapFunctionApp
 {
@@ -14,18 +14,13 @@ namespace RoadmapFunctionApp
             _usersContainer = cosmosClient.GetContainer("RoadmapDb", "Users");
         }
 
-        public async Task Execute(string accessToken) //TODO: change the name to a better name
+        public async Task Execute(string accessToken)
         {
             // Validate the token and extract user info from it
             var userInfo = _tokenService.GetUserInfoFromToken(accessToken);
 
             // Upsert user info in "users" container
             await _usersContainer.UpsertItemAsync(userInfo, new PartitionKey(userInfo.UserId));
-        }
-
-        void IUpsertUser.UpsertUser(string accessToken)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
