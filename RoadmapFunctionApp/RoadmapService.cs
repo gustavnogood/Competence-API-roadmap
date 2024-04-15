@@ -63,7 +63,6 @@ public class RoadmapService
         {
             var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
             tokenValidator.ValidateToken(accessToken);
-            // Rest of the method
             Container container = _cosmosClient.GetContainer("competence", "roadmap");
 
             FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();

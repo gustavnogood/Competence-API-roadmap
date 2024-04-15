@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+/* using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 
 namespace RoadmapFunctionApp
@@ -23,4 +23,4 @@ namespace RoadmapFunctionApp
             await _usersContainer.UpsertItemAsync(userInfo, new PartitionKey(userInfo.UserId));
         }
     }
-}
+} */
