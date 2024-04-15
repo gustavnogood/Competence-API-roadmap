@@ -23,8 +23,8 @@ namespace RoadmapFunctionApp
         }
 
         [FunctionName("LogToken")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        public static async Task<IActionResult> Log(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "logtoken")] HttpRequest req,
             ILogger log)
         {
             string accessToken = req.Headers["Authorization"].ToString().Split(' ')[1];
