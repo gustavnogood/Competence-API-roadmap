@@ -22,6 +22,18 @@ namespace RoadmapFunctionApp
             //_tokenValidator = tokenValidator;
         }
 
+        [FunctionName("LogToken")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            string accessToken = req.Headers["Authorization"].ToString().Split(' ')[1];
+
+            log.LogInformation($"Access Token: {accessToken}");
+
+            return new OkResult();
+        }
+
         [FunctionName("CreateRoadmapFunction")]
         public async Task<IActionResult> CreateRoadmap(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "roadmap")] HttpRequest req,
