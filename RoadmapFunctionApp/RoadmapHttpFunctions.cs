@@ -13,13 +13,13 @@ namespace RoadmapFunctionApp
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly CosmosClient _cosmosClient;
-        private readonly ITokenValidator _tokenValidator;
+        //private readonly ITokenValidator _tokenValidator;
 
-        public RoadmapHttpFunctions(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient, ITokenValidator tokenValidator)
+        public RoadmapHttpFunctions(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient)//, ITokenValidator tokenValidator)
         {
             _httpContextAccessor = httpContextAccessor;
             _cosmosClient = cosmosClient;
-            _tokenValidator = tokenValidator;
+            //_tokenValidator = tokenValidator;
         }
 
         [FunctionName("CreateRoadmapFunction")]
@@ -29,7 +29,7 @@ namespace RoadmapFunctionApp
         {
             try
             {
-                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient, _tokenValidator);
+                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);//, _tokenValidator);
                 return await roadmapService.CreateRoadmap(req, log);
             }
             catch (System.Exception ex)
@@ -46,7 +46,7 @@ namespace RoadmapFunctionApp
         {
             try
             {
-                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient, _tokenValidator);
+                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);//, _tokenValidator);
                 return await roadmapService.FetchRoadmaps(req, log);
             }
             catch (System.Exception ex)

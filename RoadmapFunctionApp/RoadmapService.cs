@@ -12,13 +12,13 @@ namespace RoadmapFunctionApp
 public class RoadmapService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ITokenValidator tokenValidator;
+    //private readonly ITokenValidator tokenValidator;
     private readonly CosmosClient _cosmosClient;
 
-    public RoadmapService(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient, ITokenValidator tokenValidator)
+    public RoadmapService(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient)//, ITokenValidator tokenValidator)
     {
         _httpContextAccessor = httpContextAccessor;
-        this.tokenValidator = tokenValidator;
+        //this.tokenValidator = tokenValidator;
         _cosmosClient = cosmosClient;
     }
 
@@ -29,14 +29,14 @@ public class RoadmapService
                 log.LogInformation("CreateRoadmap function started.");
 
                 var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
-                tokenValidator.ValidateToken(accessToken);
-                var userInfo = tokenValidator.GetUserInfoFromToken(accessToken);
+                //tokenValidator.ValidateToken(accessToken);
+                //var userInfo = tokenValidator.GetUserInfoFromToken(accessToken);
                 Container container = _cosmosClient.GetContainer("competence", "roadmap");
 
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
                 RoadmapRequest data = JsonConvert.DeserializeObject<RoadmapRequest>(requestBody);
-                data.id = userInfo.ToString();
+                //data.id = userInfo.ToString();
 
 
                 if (!string.IsNullOrEmpty(data.name))
@@ -62,7 +62,7 @@ public class RoadmapService
         public async Task<IActionResult> FetchRoadmaps(HttpRequest req, ILogger log)
         {
             var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
-            tokenValidator.ValidateToken(accessToken);
+            //tokenValidator.ValidateToken(accessToken);
             Container container = _cosmosClient.GetContainer("competence", "roadmap");
 
             FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
