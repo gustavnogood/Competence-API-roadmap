@@ -7,6 +7,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 
 namespace RoadmapFunctionApp
@@ -37,7 +38,11 @@ namespace RoadmapFunctionApp
                     return new StatusCodeResult(StatusCodes.Status401Unauthorized);
                 }
 
+                var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                log.LogInformation($"Request Body: {requestBody}"); // Log the request body
+
                 var userId = userIdClaim.Value;
+                log.LogInformation($"User ID: {userId}"); // Log the user ID
 
                 var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);
                 return await roadmapService.SaveRoadmap(req, userId, log);
@@ -48,23 +53,23 @@ namespace RoadmapFunctionApp
                 throw;
             }
         }
-    
 
-    [FunctionName("GetRoadmapFunction")]
-    public async Task<IActionResult> FetchRoadmaps(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
-        ILogger log)
-    {
-        try
+
+        [FunctionName("GetRoadmapFunction")]
+        public async Task<IActionResult> FetchRoadmaps(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
+            ILogger log)
         {
-            var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);//, _tokenValidator);
-            return await roadmapService.FetchRoadmaps(req, log);
-        }
-        catch (System.Exception ex)
-        {
-            log.LogError(ex, "Error fetching roadmaps");
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            try
+            {
+                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);//, _tokenValidator);
+                return await roadmapService.FetchRoadmaps(req, log);
+            }
+            catch (System.Exception ex)
+            {
+                log.LogError(ex, "Error fetching roadmaps");
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
     }
-}
 }
