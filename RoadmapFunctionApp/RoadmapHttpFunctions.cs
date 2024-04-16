@@ -25,7 +25,7 @@ namespace RoadmapFunctionApp
 
         [FunctionName("SaveRoadmapFunction")]
         public async Task<IActionResult> SaveRoadmap(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "saveroadmap")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "saveroadmap")] HttpRequest req,
             ILogger log)
         {
             try

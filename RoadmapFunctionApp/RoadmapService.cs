@@ -6,21 +6,22 @@ using System.IO;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace RoadmapFunctionApp
 {
-public class RoadmapService
-{
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    //private readonly ITokenValidator tokenValidator;
-    private readonly CosmosClient _cosmosClient;
-
-    public RoadmapService(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient)//, ITokenValidator tokenValidator)
+    public class RoadmapService
     {
-        _httpContextAccessor = httpContextAccessor;
-        //this.tokenValidator = tokenValidator;
-        _cosmosClient = cosmosClient;
-    }
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        //private readonly ITokenValidator tokenValidator;
+        private readonly CosmosClient _cosmosClient;
+
+        public RoadmapService(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient)//, ITokenValidator tokenValidator)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            //this.tokenValidator = tokenValidator;
+            _cosmosClient = cosmosClient;
+        }
 
         public async Task<IActionResult> SaveRoadmap(HttpRequest req, string userId, ILogger log)
         {
@@ -33,6 +34,11 @@ public class RoadmapService
                 //var userInfo = tokenValidator.GetUserInfoFromToken(accessToken);
                 Container container = _cosmosClient.GetContainer("competence", "roadmap");
 
+                ClaimsPrincipal user = ClaimsPrincipalParser.Parse(req);
+                foreach (var claim in user.Claims)
+                {
+                    log.LogInformation($"Claim: {claim.Type} = {claim.Value}");
+                }
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
                 RoadmapRequest data = JsonConvert.DeserializeObject<RoadmapRequest>(requestBody);
