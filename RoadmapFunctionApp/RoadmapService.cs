@@ -22,11 +22,11 @@ public class RoadmapService
         _cosmosClient = cosmosClient;
     }
 
-        public async Task<IActionResult> CreateRoadmap(HttpRequest req, ILogger log)
+        public async Task<IActionResult> SaveRoadmap(HttpRequest req, string userId, ILogger log)
         {
             try
             {
-                log.LogInformation("CreateRoadmap function started.");
+                log.LogInformation("SaveRoadmap function started.");
 
                 var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
                 //tokenValidator.ValidateToken(accessToken);
@@ -42,7 +42,7 @@ public class RoadmapService
                 if (!string.IsNullOrEmpty(data.name))
                 {
                     ItemResponse<RoadmapRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.name));
-                    log.LogInformation("CreateRoadmap function completed successfully.");
+                    log.LogInformation("SaveRoadmap function completed successfully.");
                     return new OkObjectResult(request.Resource);
                 }
                 else
@@ -52,7 +52,7 @@ public class RoadmapService
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "An error occurred while executing the CreateRoadmap function.");
+                log.LogError(ex, "An error occurred while executing the SaveRoadmap function.");
                 return new BadRequestObjectResult("An error occurred.");
             }
         }

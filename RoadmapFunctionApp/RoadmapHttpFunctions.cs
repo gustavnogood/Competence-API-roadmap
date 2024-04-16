@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -13,59 +15,56 @@ namespace RoadmapFunctionApp
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly CosmosClient _cosmosClient;
-        //private readonly ITokenValidator _tokenValidator;
 
-        public RoadmapHttpFunctions(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient)//, ITokenValidator tokenValidator)
+        public RoadmapHttpFunctions(IHttpContextAccessor httpContextAccessor, CosmosClient cosmosClient)
         {
             _httpContextAccessor = httpContextAccessor;
             _cosmosClient = cosmosClient;
-            //_tokenValidator = tokenValidator;
         }
 
-        [FunctionName("LogToken")]
-        public static async Task<IActionResult> Log(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "logtoken")] HttpRequest req,
-            ILogger log)
-        {
-            string accessToken = req.Headers["Authorization"].ToString().Split(' ')[1];
-
-            log.LogInformation($"Access Token: {accessToken}");
-
-            return new OkResult();
-        }
-
-        [FunctionName("CreateRoadmapFunction")]
-        public async Task<IActionResult> CreateRoadmap(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "roadmap")] HttpRequest req,
+        [FunctionName("SaveRoadmapFunction")]
+        public async Task<IActionResult> SaveRoadmap(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "saveroadmap")] HttpRequest req,
             ILogger log)
         {
             try
             {
-                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);//, _tokenValidator);
-                return await roadmapService.CreateRoadmap(req, log);
+                ClaimsPrincipal user = ClaimsPrincipalParser.Parse(req);
+                var userIdClaim = user.Claims.FirstOrDefault(c => c.Type == "sub") ?? user.Claims.FirstOrDefault(c => c.Type == "oid");
+                if (userIdClaim == null)
+                {
+                    log.LogError("User ID claim not found");
+                    return new StatusCodeResult(StatusCodes.Status401Unauthorized);
+                }
+
+                var userId = userIdClaim.Value;
+
+                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);
+                return await roadmapService.SaveRoadmap(req, userId, log);
             }
             catch (System.Exception ex)
             {
-                log.LogError(ex, "Error creating roadmap");
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                log.LogError(ex, "Error saving roadmap");
+                throw;
             }
         }
+    
 
-        [FunctionName("GetRoadmapFunction")]
-        public async Task<IActionResult> FetchRoadmaps(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
-            ILogger log)
+    [FunctionName("GetRoadmapFunction")]
+    public async Task<IActionResult> FetchRoadmaps(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
+        ILogger log)
+    {
+        try
         {
-            try
-            {
-                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);//, _tokenValidator);
-                return await roadmapService.FetchRoadmaps(req, log);
-            }
-            catch (System.Exception ex)
-            {
-                log.LogError(ex, "Error fetching roadmaps");
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
+            var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);//, _tokenValidator);
+            return await roadmapService.FetchRoadmaps(req, log);
+        }
+        catch (System.Exception ex)
+        {
+            log.LogError(ex, "Error fetching roadmaps");
+            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }
+}
 }
