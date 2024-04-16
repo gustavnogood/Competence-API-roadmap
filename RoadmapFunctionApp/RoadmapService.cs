@@ -34,8 +34,8 @@ namespace RoadmapFunctionApp
                 //var userInfo = tokenValidator.GetUserInfoFromToken(accessToken);
                 Container container = _cosmosClient.GetContainer("competence", "users");
 
-                ClaimsPrincipal user = ClaimsPrincipalParser.Parse(req);
-                foreach (var claim in user.Claims)
+                ClaimsPrincipal identity = ClaimsPrincipalParser.Parse(req);
+                foreach (var claim in identity.Claims)
                 {
                     log.LogInformation($"Claim: {claim.Type} = {claim.Value}");
                 }
