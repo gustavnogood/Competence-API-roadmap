@@ -32,7 +32,7 @@ namespace RoadmapFunctionApp
                 var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
                 //tokenValidator.ValidateToken(accessToken);
                 //var userInfo = tokenValidator.GetUserInfoFromToken(accessToken);
-                Container container = _cosmosClient.GetContainer("competence", "roadmap");
+                Container container = _cosmosClient.GetContainer("competence", "users");
 
                 ClaimsPrincipal user = ClaimsPrincipalParser.Parse(req);
                 foreach (var claim in user.Claims)
