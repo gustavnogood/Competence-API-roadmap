@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 
 namespace RoadmapFunctionApp
@@ -33,6 +35,28 @@ namespace RoadmapFunctionApp
             catch (System.Exception ex)
             {
                 log.LogError(ex, "Error fetching roadmaps");
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [FunctionName("AddUserFunction")]
+        public async Task<IActionResult> AddUser(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequest req,
+            ILogger log)
+        {
+            try
+            {
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                dynamic data = JsonConvert.DeserializeObject(requestBody);
+                string displayName = data?.displayName;
+                string id = data?.id;
+
+                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);
+                return new OkObjectResult(await roadmapService.AddUser(displayName, id));
+            }
+            catch (System.Exception ex)
+            {
+                log.LogError(ex, "Error adding user");
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }

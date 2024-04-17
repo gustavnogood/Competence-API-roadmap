@@ -33,5 +33,17 @@ namespace RoadmapFunctionApp
             }
             return new OkObjectResult(result);
         }
+
+        public async Task<ItemResponse<UserInfo>> AddUser(string displayName, string id)
+        {
+            UserInfo newUser = new()
+            {
+                DisplayName = displayName,
+                UserId = id
+            };
+
+            Container container = _cosmosClient.GetContainer("competence", "users");
+            return await container.CreateItemAsync(newUser, new PartitionKey(newUser.UserId));
+        }
     }
 }

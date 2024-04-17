@@ -5,32 +5,38 @@ namespace RoadmapFunctionApp
 {
     public class RoadmapRequest
     {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-        public List<Role> roles { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<Role> Roles { get; set; }
     }
 
     public class Role
     {
-        public string roleId { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-        public List<Skill> skills { get; set; }
+        public string RoleId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<Skill> Skills { get; set; }
     }
 
     public class Skill
     {
-        public string skillId { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
+        public string SkillId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
 
     public class RoadmapResponse
     {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-        public List<Role> roles { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<Role> Roles { get; set; }
+    }
+
+    public class UserInfo
+    {
+        public string UserId { get; set; }
+        public string DisplayName { get; set; }
     }
 }
