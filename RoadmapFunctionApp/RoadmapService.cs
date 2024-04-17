@@ -43,7 +43,7 @@ namespace RoadmapFunctionApp
             };
 
             Container container = _cosmosClient.GetContainer("competence", "users");
-            return await container.CreateItemAsync(newUser, new PartitionKey(newUser.UserId));
+            return await container.CreateItemAsync(newUser, new PartitionKey(newUser.DisplayName));
         }
     }
 }

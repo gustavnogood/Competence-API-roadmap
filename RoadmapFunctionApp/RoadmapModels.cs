@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace RoadmapFunctionApp
 {
@@ -36,7 +37,10 @@ namespace RoadmapFunctionApp
 
     public class UserInfo
     {
+        [JsonProperty("id")]
         public string UserId { get; set; }
+
+        [JsonProperty("displayName")]
         public string DisplayName { get; set; }
     }
 }
