@@ -29,7 +29,7 @@ namespace RoadmapFunctionApp
         {
             try
             {
-                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);//, _tokenValidator);
+                var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);
                 return await roadmapService.FetchRoadmaps(req, log);
             }
             catch (System.Exception ex)
@@ -47,12 +47,15 @@ namespace RoadmapFunctionApp
             try
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                dynamic data = JsonConvert.DeserializeObject(requestBody);
-                string displayName = data?.displayName;
-                string id = data?.id;
+                UserRequest data = JsonConvert.DeserializeObject<UserRequest>(requestBody);
+
+                if (string.IsNullOrEmpty(data.DisplayName) || string.IsNullOrEmpty(data.Id))
+                {
+                    return new BadRequestObjectResult("Display name or id is missing in the request.");
+                }
 
                 var roadmapService = new RoadmapService(_httpContextAccessor, _cosmosClient);
-                return new OkObjectResult(await roadmapService.AddUser(displayName, id));
+                return new OkObjectResult(await roadmapService.AddUser(data.DisplayName, data.Id));
             }
             catch (System.Exception ex)
             {
@@ -60,5 +63,5 @@ namespace RoadmapFunctionApp
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
-    }
+}
 }

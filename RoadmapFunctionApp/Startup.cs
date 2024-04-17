@@ -17,8 +17,6 @@ namespace RoadmapFunctionApp
 
             builder.Services.AddSingleton(cosmosClient);
             builder.Services.AddHttpContextAccessor();
-/*             builder.Services.AddSingleton<ITokenValidator, TokenValidator>(); */
-/*             builder.Services.AddSingleton<IUpsertUser, UpsertUser>(); */
 
         }
     }

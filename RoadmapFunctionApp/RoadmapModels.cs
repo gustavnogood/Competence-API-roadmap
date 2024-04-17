@@ -35,6 +35,12 @@ namespace RoadmapFunctionApp
         public List<Role> Roles { get; set; }
     }
 
+    public class UserRequest
+    {
+        public string DisplayName { get; set; }
+        public string Id { get; set; }
+    }
+
     public class UserInfo
     {
         [JsonProperty("id")]
