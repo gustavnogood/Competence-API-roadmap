@@ -37,16 +37,18 @@ namespace RoadmapFunctionApp
 
     public class UserRequest
     {
+        [JsonProperty("displayName")]
         public string DisplayName { get; set; }
+        [JsonProperty("id")]
         public string Id { get; set; }
     }
 
     public class UserInfo
     {
-        [JsonProperty("id")]
+        
         public string id { get; set; }
 
-        [JsonProperty("displayName")]
-        public string DisplayName { get; set; }
+        
+        public string displayName { get; set; }
     }
 }
