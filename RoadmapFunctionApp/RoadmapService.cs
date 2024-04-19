@@ -39,7 +39,7 @@ namespace RoadmapFunctionApp
             UserInfo newUser = new()
             {
                 DisplayName = displayName,
-                UserId = id
+                id = id
             };
 
             Container container = _cosmosClient.GetContainer("competence", "users");
