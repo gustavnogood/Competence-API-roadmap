@@ -3,6 +3,7 @@ using Microsoft.Azure.Cosmos;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace RoadmapFunctionApp
 {
@@ -34,16 +35,28 @@ namespace RoadmapFunctionApp
             return new OkObjectResult(result);
         }
 
-        public async Task<ItemResponse<UserInfo>> AddUser(string displayName, string id)
+        public async Task<IActionResult> AddUser(string displayName, string id)
         {
             UserInfo newUser = new()
             {
-                displayName = displayName,
-                id = id
+                id = id,
+                displayName = displayName
             };
 
             Container container = _cosmosClient.GetContainer("competence", "users");
-            return await container.CreateItemAsync(newUser, new PartitionKey(newUser.displayName));
+            try
+            {
+                ItemResponse<UserInfo> response = await container.CreateItemAsync(newUser, new PartitionKey(newUser.displayName));
+                return new OkObjectResult(response.Resource);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                return new ConflictObjectResult($"A user with id {id} already exists.");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
         }
     }
 }
