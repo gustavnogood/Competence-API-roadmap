@@ -41,7 +41,7 @@ namespace RoadmapFunctionApp
 
         [FunctionName("AddUserFunction")]
         public async Task<IActionResult> AddUser(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "users")] HttpRequest req,
             ILogger log)
         {
             try
