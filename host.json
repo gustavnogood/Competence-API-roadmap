@@ -1,16 +1,11 @@
 {
-    "version": "2.0",  
+    "version": "2.0",
     "logging": {
-        "logLevel": {
-            "default": "Trace",
-            "Function": "Trace",
-            "Host.Aggregator": "Error",
-            "Host.Results": "Information", 
-            "Function.Function1": "Information",
-            "Function.Function1.User": "Error"
-        },
         "applicationInsights": {
-            "enableDependencyTracking": true
+            "samplingSettings": {
+                "isEnabled": true,
+                "excludedTypes": "Request"
+            }
         }
     }
-  } 
+}
