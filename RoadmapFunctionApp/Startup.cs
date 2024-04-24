@@ -47,31 +47,47 @@ namespace Company.Function
             Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
 
             FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
-            var result = new HashSet<RoadmapResponse>();
+            var result = new List<RoadmapResponse>();
+
             while (queryResultSetIterator.HasMoreResults)
             {
-                foreach (var movie in await queryResultSetIterator.ReadNextAsync())
+                foreach (var roadmap in await queryResultSetIterator.ReadNextAsync())
                 {
-                    result.Add(movie);
+                    result.Add(roadmap);
                 }
             }
+
             return new OkObjectResult(result);
         }
-        public class UserRequest
-        {
+    }
+    public class UserRequest
+    {
 
-            public String id;
-            public String displayName;
-        }
-
-        public class RoadmapResponse
-        {
-            public String id;
-            public String name;
-            public String description;
-
-        }
+        public string id;
+        public string displayName;
     }
 
+    public class RoadmapResponse
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public List<Role> roles { get; set; }
+    }
 
+    public class Role
+    {
+        public string roleId { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public List<Skill> skills { get; set; } // New property
+    }
+
+    public class Skill
+    {
+        public string skillId { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+    }
 }
+
