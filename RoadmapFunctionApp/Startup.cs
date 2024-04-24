@@ -27,13 +27,13 @@ namespace Company.Function
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
             UserRequest data = JsonConvert.DeserializeObject<UserRequest>(requestBody);
-            data.id = Guid.NewGuid().ToString();
 
             if (!string.IsNullOrEmpty(data.displayName))
             {
                 ItemResponse<UserRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.displayName));
                 return new OkObjectResult(request.Resource);
             }
+
             return new OkObjectResult("Failed to upload, no users found in request.");
         }
 
