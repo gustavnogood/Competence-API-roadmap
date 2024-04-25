@@ -85,7 +85,7 @@ namespace Company.Function
         public string roleId { get; set; }
         public string name { get; set; }
         public string description { get; set; }
-        public List<Skill> skills { get; set; } // New property
+        public List<Skill> skills { get; set; }
     }
 
     public class Skill
