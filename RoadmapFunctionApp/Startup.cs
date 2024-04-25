@@ -12,8 +12,32 @@ using Newtonsoft.Json;
 
 namespace Company.Function
 {
-    public static class MovieFunction
+    public static class CompetenceFunction
     {
+        
+        [FunctionName("GetRoadmapFunction")]
+        public static async Task<IActionResult> FetchRoadmap(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
+        ILogger log)
+        {
+            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "KkFvBCDgkDSHI8oE01FLBM57NfVWkECInvQcafkb1aKlcfllf9UJvlKMrbBf2QsZUaVFmjtQrtuLACDbbwMVIQ==");
+
+            Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
+
+            FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
+            var result = new List<RoadmapResponse>();
+
+            while (queryResultSetIterator.HasMoreResults)
+            {
+                foreach (var roadmap in await queryResultSetIterator.ReadNextAsync())
+                {
+                    result.Add(roadmap);
+                }
+            }
+
+            return new OkObjectResult(result);
+        }
+
         [FunctionName("AddUserFunction")]
         public static async Task<IActionResult> CreateUser(
     [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequest req,
@@ -38,29 +62,6 @@ namespace Company.Function
             }
             log.LogWarning("Failed to upload, no users found in request.");
             return new OkObjectResult("Failed to upload, no users found in request.");
-        }
-
-        [FunctionName("GetRoadmapFunction")]
-        public static async Task<IActionResult> FetchRoadmap(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
-        ILogger log)
-        {
-            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "KkFvBCDgkDSHI8oE01FLBM57NfVWkECInvQcafkb1aKlcfllf9UJvlKMrbBf2QsZUaVFmjtQrtuLACDbbwMVIQ==");
-
-            Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
-
-            FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
-            var result = new List<RoadmapResponse>();
-
-            while (queryResultSetIterator.HasMoreResults)
-            {
-                foreach (var roadmap in await queryResultSetIterator.ReadNextAsync())
-                {
-                    result.Add(roadmap);
-                }
-            }
-
-            return new OkObjectResult(result);
         }
     }
     public class UserRequest
