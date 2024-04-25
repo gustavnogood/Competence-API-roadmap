@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace Company.Function
 {
-    public static class CompetenceFunction
+    public static class GetFunction
     {
         
         [FunctionName("GetRoadmapFunction")]
@@ -37,7 +37,8 @@ namespace Company.Function
 
             return new OkObjectResult(result);
         }
-
+    }
+    public static class AddUserFunction {
         [FunctionName("AddUserFunction")]
         public static async Task<IActionResult> CreateUser(
     [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequest req,
