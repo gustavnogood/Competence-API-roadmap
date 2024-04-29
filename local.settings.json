@@ -3,9 +3,5 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "APPINSIGHTS_INSTRUMENTATIONKEY": "6e3498d9-c0dc-4457-b12d-358d0e43277d"
-  },
-  "Host": {
-    "LocalHttpPort": 7071,
-    "CORS": "*"
   }
 }
