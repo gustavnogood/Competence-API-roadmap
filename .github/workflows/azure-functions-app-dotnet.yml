@@ -1,31 +1,14 @@
-# This workflow will build a .NET Core project and deploy it to an Azure Functions App on Windows or Linux when a commit is pushed to your default branch.
-#
-# This workflow assumes you have already created the target Azure Functions app.
-# For instructions see https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-csharp?tabs=in-process
-#
-# To configure this workflow:
-# 1. Set up the following secrets in your repository:
-#   - AZURE_FUNCTIONAPP_PUBLISH_PROFILE
-# 2. Change env variables for your configuration.
-#
-# For more information on:
-#   - GitHub Actions for Azure: https://github.com/Azure/Actions
-#   - Azure Functions Action: https://github.com/Azure/functions-action
-#   - Publish Profile: https://github.com/Azure/functions-action#using-publish-profile-as-deployment-credential-recommended
-#   - Azure Service Principal for RBAC: https://github.com/Azure/functions-action#using-azure-service-principal-for-rbac-as-deployment-credential
-#
-# For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples/tree/master/FunctionApp
-
-name: Deploy DotNet project to Azure Function App
-
+name: Run Azure Login with OIDC
 on:
-  push:
-    branches: ["master"]
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
 
 env:
     AZURE_FUNCTIONAPP_NAME: "bff-competence-test" # set this to your function app name on Azure
     AZURE_FUNCTIONAPP_RESOURCE_GROUP: "rg-competence-test" # set this to your resource group name on Azure
-    AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
+    AZURE_FUNCTIONAPP_PACKAGE_PATH: "./api" # set this to the path to your function app project, defaults to the repository root
     DOTNET_VERSION: "6.0.x"
 
 permissions:
@@ -36,7 +19,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: "Az CLI login"
-              uses: azure/login@v1
+              uses: azure/login@v2
               with:
                   client-id: ${{ secrets.AZURE_CLIENT_ID }}
                   tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -45,17 +28,15 @@ jobs:
 
             - name: Get publish Profile
               id: publishprofile
-              uses: azure/powershell@v1
+              uses: azure/powershell@v2
               with:
                   inlineScript: |
                       $profile = Get-AzWebAppPublishingProfile `
                         -ResourceGroupName ${{ env.AZURE_FUNCTIONAPP_RESOURCE_GROUP}} `
                         -Name ${{ env.AZURE_FUNCTIONAPP_NAME }}
                       $profile = $profile.Replace("`r", "").Replace("`n", "")
-                      echo $profile
                       "profile=$profile" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
                   azPSVersion: "latest"
-                  
 
             - name: "Checkout GitHub Action"
               uses: actions/checkout@v3
@@ -88,5 +69,4 @@ jobs:
                         -ResourceGroupName ${{ env.AZURE_FUNCTIONAPP_RESOURCE_GROUP }} `
                         -Name ${{ env.AZURE_FUNCTIONAPP_NAME }}
                       $profile = ""
-                      echo $profile
                   azPSVersion: "latest"
