@@ -12,17 +12,24 @@ using Newtonsoft.Json;
 
 namespace Company.Function
 {
-    public static class GetFunction
+    public class GetFunction
     {
-        
-        [FunctionName("GetRoadmapFunction")]
-        public static async Task<IActionResult> FetchRoadmap(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req,
-        ILogger log)
+        private readonly ILogger<GetFunction> _logger;
+
+        public GetFunction(ILogger<GetFunction> logger)
         {
+            _logger = logger;
+        }
+        [FunctionName("GetRoadmapFunction")]
+        public async Task<IActionResult> FetchRoadmap(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req)
+        {
+
+            _logger.LogInformation("FetchRoadmap function started.");
             CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==");
 
             Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
+            _logger.LogInformation("Container retrieved.");
 
             FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
             var result = new List<RoadmapResponse>();
@@ -31,14 +38,15 @@ namespace Company.Function
             {
                 foreach (var roadmap in await queryResultSetIterator.ReadNextAsync())
                 {
+                    _logger.LogInformation($"Adding roadmap with id: {roadmap.id}");
                     result.Add(roadmap);
                 }
             }
-
+            _logger.LogInformation("FetchRoadmap function completed.");
             return new OkObjectResult(result);
         }
     }
-    public static class AddUserFunction {
+    public class AddUserFunction {
         [FunctionName("AddUserFunction")]
         public static async Task<IActionResult> CreateUser(
     [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequest req,

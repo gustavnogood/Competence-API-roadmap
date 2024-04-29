@@ -5,7 +5,11 @@
             "samplingSettings": {
                 "isEnabled": true,
                 "excludedTypes": "Request"
-            }
+        },
+        "enableLiveMetricsFilters": true
+        },
+        "logLevel": {
+            "default": "Information"
         }
     }
 }
