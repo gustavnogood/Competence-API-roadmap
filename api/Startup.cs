@@ -31,14 +31,14 @@ namespace Company.Function
             Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
             _logger.LogInformation("Container retrieved.");
 
-            FeedIterator<RoadmapResponse> queryResultSetIterator = container.GetItemQueryIterator<RoadmapResponse>();
-            var result = new List<RoadmapResponse>();
+            FeedIterator<Node> queryResultSetIterator = container.GetItemQueryIterator<Node>();
+            var result = new List<Node>();
 
             while (queryResultSetIterator.HasMoreResults)
             {
                 foreach (var roadmap in await queryResultSetIterator.ReadNextAsync())
                 {
-                    _logger.LogInformation($"Adding roadmap with id: {roadmap.id}");
+                    _logger.LogInformation($"Adding roadmap with id: {roadmap.Id}");
                     result.Add(roadmap);
                 }
             }
@@ -75,32 +75,28 @@ namespace Company.Function
     }
     public class UserRequest
     {
-
         public string id;
         public string displayName;
+        public string roadmapId;
     }
 
-    public class RoadmapResponse
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-        public List<Role> roles { get; set; }
-    }
+public class Node
+{
+    public string Id { get; set; }
+    public string Name { get; set; }
+    public List<Node> Children { get; set; }
+}
 
-    public class Role
-    {
-        public string roleId { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-        public List<Skill> skills { get; set; }
-    }
-
-    public class Skill
-    {
-        public string skillId { get; set; }
-        public string name { get; set; }
-        public string description { get; set; }
-    }
+public class Root
+{
+    public string Id { get; set; }
+    public string Name { get; set; }
+    public List<Node> Children { get; set; }
+    public string _rid { get; set; }
+    public string _self { get; set; }
+    public string _etag { get; set; }
+    public string _attachments { get; set; }
+    public int _ts { get; set; }
+}
 }
 
