@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 namespace Competence.Function
 {
@@ -19,8 +20,14 @@ namespace Competence.Function
 
         public static void Initialize()
         {
+            var config = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables()
+        .Build();
+
             var serviceCollection = new ServiceCollection();
-            var cosmosDbConnectionString = Environment.GetEnvironmentVariable("CosmosDBConnection");
+            var cosmosDbConnectionString = config.GetConnectionString("CosmosDBConnection");
             serviceCollection.AddSingleton(x => new CosmosClient(cosmosDbConnectionString));
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }
@@ -63,13 +70,13 @@ namespace Competence.Function
     public class AddUserFunction
     {
         private readonly ILogger<AddUserFunction> _logger;
-    private readonly CosmosClient _client;
+        private readonly CosmosClient _client;
 
-    public AddUserFunction(ILogger<AddUserFunction> logger, CosmosClient client)
-    {
-        _logger = logger;
-        _client = client;
-    }
+        public AddUserFunction(ILogger<AddUserFunction> logger, CosmosClient client)
+        {
+            _logger = logger;
+            _client = client;
+        }
         [FunctionName("AddUserFunction")]
         public async Task<IActionResult> CreateUser(
     [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequest req,
@@ -79,19 +86,19 @@ namespace Competence.Function
 
             Container container = _client.GetContainer("competence", "users") ?? throw new NullReferenceException();
 
-        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-        UserRequest data = JsonConvert.DeserializeObject<UserRequest>(requestBody);
+            UserRequest data = JsonConvert.DeserializeObject<UserRequest>(requestBody);
 
-        if (!string.IsNullOrEmpty(data.displayName))
-        {
-            _logger.LogInformation($"Attempting to upsert user with display name: {data.displayName}");
-            ItemResponse<UserRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.displayName));
-            _logger.LogInformation("User upserted successfully.");
-            return new OkObjectResult(request.Resource);
-        }
-        _logger.LogWarning("Failed to upload, no users found in request.");
-        return new OkObjectResult("Failed to upload, no users found in request.");
+            if (!string.IsNullOrEmpty(data.displayName))
+            {
+                _logger.LogInformation($"Attempting to upsert user with display name: {data.displayName}");
+                ItemResponse<UserRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.displayName));
+                _logger.LogInformation("User upserted successfully.");
+                return new OkObjectResult(request.Resource);
+            }
+            _logger.LogWarning("Failed to upload, no users found in request.");
+            return new OkObjectResult("Failed to upload, no users found in request.");
         }
     }
     public class UserRequest
