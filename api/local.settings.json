@@ -1,6 +1,7 @@
 {
   "IsEncrypted": false,
   "Values": {
+    "CosmosDBConnection": "https://cosmos-competence-test.documents.azure.com:443/;r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=6e3498d9-c0dc-4457-b12d-358d0e43277d;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/;ApplicationId=bd5c9458-5eaf-4080-a1c7-13024c6ebba6"
   },
