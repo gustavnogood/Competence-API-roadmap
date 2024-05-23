@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 
 namespace Competence.Function
 {
@@ -18,29 +19,36 @@ namespace Competence.Function
     {
         public static ServiceProvider ServiceProvider { get; private set; }
 
-        public static void Initialize()
+        public static void Initialize(IConfiguration config)
         {
-            var config = new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-        .AddEnvironmentVariables()
-        .Build();
-
             var serviceCollection = new ServiceCollection();
             var cosmosDbConnectionString = config.GetConnectionString("CosmosDBConnection");
             serviceCollection.AddSingleton(x => new CosmosClient(cosmosDbConnectionString));
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }
     }
+    public class Startup
+{
+    public void Configure(IFunctionsHostBuilder builder)
+    {
+        var config = new ConfigurationBuilder()
+            .SetBasePath(Environment.CurrentDirectory)
+            .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        ServiceProviderBuilder.Initialize(config);
+    }
+}
     public class GetFunction
     {
         private readonly ILogger<GetFunction> _logger;
         private readonly CosmosClient _client;
 
-        public GetFunction(ILogger<GetFunction> logger)
+        public GetFunction(ILogger<GetFunction> logger, IConfiguration config)
         {
             _logger = logger;
-            ServiceProviderBuilder.Initialize();
+            ServiceProviderBuilder.Initialize(config);
             _client = ServiceProviderBuilder.ServiceProvider.GetRequiredService<CosmosClient>();
         }
         [FunctionName("GetRoadmapFunction")]
