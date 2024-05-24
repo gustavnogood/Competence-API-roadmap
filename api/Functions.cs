@@ -10,26 +10,17 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace Competence.Function
+namespace Company.Function
 {
-    public class GetFunction
+    public static class GetFunction
     {
-        private readonly ILogger<GetFunction> _logger;
-
-        public GetFunction(ILogger<GetFunction> logger)
-        {
-            _logger = logger;
-        }
         [FunctionName("GetRoadmapFunction")]
-        public async Task<IActionResult> FetchRoadmap(
+        public static async Task<IActionResult> FetchRoadmap(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req)
         {
-
-            _logger.LogInformation("FetchRoadmap function started.");
             CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==");
 
             Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
-            _logger.LogInformation("Container retrieved.");
 
             FeedIterator<Node> queryResultSetIterator = container.GetItemQueryIterator<Node>();
             var result = new List<Node>();
@@ -38,19 +29,18 @@ namespace Competence.Function
             {
                 foreach (var roadmap in await queryResultSetIterator.ReadNextAsync())
                 {
-                    _logger.LogInformation($"Adding roadmap with id: {roadmap.Id}");
                     result.Add(roadmap);
                 }
             }
-            _logger.LogInformation("FetchRoadmap function completed.");
             return new OkObjectResult(result);
         }
     }
-    public class AddUserFunction {
+    public static class AddUserFunction
+    {
         [FunctionName("AddUserFunction")]
         public static async Task<IActionResult> CreateUser(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequest req,
-    ILogger log)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequest req,
+        ILogger log)
         {
             log.LogInformation("CreateUser function started.");
 
@@ -80,23 +70,23 @@ namespace Competence.Function
         public string roadmapId;
     }
 
-public class Node
-{
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public List<Node> Children { get; set; }
-}
+    public class Node
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public List<Node> Children { get; set; }
+    }
 
-public class Root
-{
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public List<Node> Children { get; set; }
-    public string _rid { get; set; }
-    public string _self { get; set; }
-    public string _etag { get; set; }
-    public string _attachments { get; set; }
-    public int _ts { get; set; }
-}
+    public class Root
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public List<Node> Children { get; set; }
+        public string Rid { get; set; }
+        public string Self { get; set; }
+        public string Etag { get; set; }
+        public string Attachments { get; set; }
+        public int Ts { get; set; }
+    }
 }
 
