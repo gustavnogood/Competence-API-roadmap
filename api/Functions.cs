@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Azure.Identity;
 
 namespace Company.Function
 {
@@ -18,8 +19,7 @@ namespace Company.Function
         public static async Task<IActionResult> FetchRoadmap(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req)
         {
-            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==");
-
+            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", new ManagedIdentityCredential());
             Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
 
             FeedIterator<Node> queryResultSetIterator = container.GetItemQueryIterator<Node>();
@@ -44,7 +44,7 @@ namespace Company.Function
         {
             log.LogInformation("CreateUser function started.");
 
-            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", "r0ppqOeMX7GTifP0vAF4G8w6zFUv5IS74hYqTYJMzGCC2dOb81MYHuwWSnWKsOiadJ7qpXSBZOnIACDbbRybHg==");
+            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", new ManagedIdentityCredential());
 
             Container container = client.GetContainer("competence", "users") ?? throw new NullReferenceException();
 
