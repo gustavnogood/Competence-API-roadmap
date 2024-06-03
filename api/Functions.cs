@@ -52,10 +52,10 @@ namespace Company.Function
 
             UserRequest data = JsonConvert.DeserializeObject<UserRequest>(requestBody);
 
-            if (!string.IsNullOrEmpty(data.displayName))
+            if (!string.IsNullOrEmpty(data.DisplayName))
             {
-                log.LogInformation($"Attempting to upsert user with display name: {data.displayName}");
-                ItemResponse<UserRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.displayName));
+                log.LogInformation($"Attempting to upsert user with display name: {data.DisplayName}");
+                ItemResponse<UserRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.DisplayName));
                 log.LogInformation("User upserted successfully.");
                 return new OkObjectResult(request.Resource);
             }
@@ -63,12 +63,12 @@ namespace Company.Function
             return new OkObjectResult("Failed to upload, no users found in request.");
         }
     }
-    public class UserRequest
-    {
-        public string id;
-        public string displayName;
-        public string roadmapId;
-    }
+public class UserRequest
+{
+    public string Id { get; set; }
+    public string DisplayName { get; set; }
+    public string RoadmapId { get; set; }
+}
 
     public class Node
     {
