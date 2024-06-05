@@ -43,12 +43,16 @@ namespace Company.Function
         ILogger log)
         {
             log.LogInformation("CreateUser function started.");
+            log.LogInformation($"Request Method: {req.Method}");
+            log.LogInformation($"Request Path: {req.Path}");
+            log.LogInformation($"Request Headers: {JsonConvert.SerializeObject(req.Headers)}");
 
             CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", new ManagedIdentityCredential());
 
             Container container = client.GetContainer("competence", "users") ?? throw new NullReferenceException();
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            log.LogInformation($"Request Body: {requestBody}");
 
             UserRequest data = JsonConvert.DeserializeObject<UserRequest>(requestBody);
 
@@ -63,12 +67,12 @@ namespace Company.Function
             return new OkObjectResult("Failed to upload, no users found in request.");
         }
     }
-public class UserRequest
-{
-    public string Id { get; set; }
-    public string DisplayName { get; set; }
-    public string RoadmapId { get; set; }
-}
+    public class UserRequest
+    {
+        public string Id { get; set; }
+        public string DisplayName { get; set; }
+        public string RoadmapId { get; set; }
+    }
 
     public class Node
     {
