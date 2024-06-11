@@ -48,7 +48,8 @@ namespace Company.Function
             log.LogInformation($"Request Headers: {JsonConvert.SerializeObject(req.Headers)}");
 
             CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", new ManagedIdentityCredential());
-            Container container = client.GetContainer("competence", "users") ?? throw new NullReferenceException("Container not found");
+            Container userContainer = client.GetContainer("competence", "users") ?? throw new NullReferenceException("User container not found");
+            Container counterContainer = client.GetContainer("competence", "counter") ?? throw new NullReferenceException("Counter container not found");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             log.LogInformation($"Request Body: {requestBody}");
@@ -64,14 +65,23 @@ namespace Company.Function
                 return new BadRequestObjectResult("Invalid request body");
             }
 
-            if (!string.IsNullOrEmpty(data.DisplayName))
+            if (!string.IsNullOrEmpty(data.DisplayName) && !string.IsNullOrEmpty(data.TenantId))
             {
                 try
                 {
-                    log.LogInformation($"Attempting to upsert user with display name: {data.DisplayName}");
-                    ItemResponse<UserRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.DisplayName));
+                    ItemResponse<Counter> counterResponse = await counterContainer.ReadItemAsync<Counter>("userCounter", new PartitionKey("userCounter"));
+                    Counter counter = counterResponse.Resource;
+                    int newUserId = counter.Value + 1;
+
+                    counter.Value = newUserId;
+                    await counterContainer.ReplaceItemAsync(counter, counter.Id, new PartitionKey(counter.Id));
+
+                    data.Id = newUserId.ToString();
+
+                    log.LogInformation($"Attempting to upsert user with TenantId: {data.TenantId}");
+                    ItemResponse<UserRequest> userResponse = await userContainer.UpsertItemAsync(data, new PartitionKey(data.TenantId));
                     log.LogInformation("User upserted successfully.");
-                    return new OkObjectResult(request.Resource);
+                    return new OkObjectResult(userResponse.Resource);
                 }
                 catch (Exception ex)
                 {
@@ -87,8 +97,14 @@ namespace Company.Function
     public class UserRequest
     {
         public string Id { get; set; }
+        public string TenantId { get; set; }
         public string DisplayName { get; set; }
         public string RoadmapId { get; set; }
+    }
+    public class Counter
+    {
+        public string Id { get; set; }
+        public int Value { get; set; }
     }
 
     public class Node
