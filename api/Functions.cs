@@ -48,23 +48,40 @@ namespace Company.Function
             log.LogInformation($"Request Headers: {JsonConvert.SerializeObject(req.Headers)}");
 
             CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", new ManagedIdentityCredential());
-
-            Container container = client.GetContainer("competence", "users") ?? throw new NullReferenceException();
+            Container container = client.GetContainer("competence", "users") ?? throw new NullReferenceException("Container not found");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             log.LogInformation($"Request Body: {requestBody}");
 
-            UserRequest data = JsonConvert.DeserializeObject<UserRequest>(requestBody);
+            UserRequest data;
+            try
+            {
+                data = JsonConvert.DeserializeObject<UserRequest>(requestBody);
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"Failed to deserialize request body: {ex}");
+                return new BadRequestObjectResult("Invalid request body");
+            }
 
             if (!string.IsNullOrEmpty(data.DisplayName))
             {
-                log.LogInformation($"Attempting to upsert user with display name: {data.DisplayName}");
-                ItemResponse<UserRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.DisplayName));
-                log.LogInformation("User upserted successfully.");
-                return new OkObjectResult(request.Resource);
+                try
+                {
+                    log.LogInformation($"Attempting to upsert user with display name: {data.DisplayName}");
+                    ItemResponse<UserRequest> request = await container.UpsertItemAsync(data, new PartitionKey(data.DisplayName));
+                    log.LogInformation("User upserted successfully.");
+                    return new OkObjectResult(request.Resource);
+                }
+                catch (Exception ex)
+                {
+                    log.LogError($"Failed to upsert user: {ex}");
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
             }
+
             log.LogWarning("Failed to upload, no users found in request.");
-            return new OkObjectResult("Failed to upload, no users found in request.");
+            return new BadRequestObjectResult("Failed to upload, no users found in request.");
         }
     }
     public class UserRequest
