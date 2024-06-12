@@ -64,7 +64,7 @@ namespace Company.Function
                 return new BadRequestObjectResult("Invalid request body");
             }
 
-            if (!string.IsNullOrEmpty(data.DisplayName) && !string.IsNullOrEmpty(data.TenantId))
+            if (!string.IsNullOrEmpty(data.DisplayName) && !string.IsNullOrEmpty(data.UserId))
             {
                 try
                 {
@@ -72,8 +72,8 @@ namespace Company.Function
                     log.LogInformation($"Upserting user data: {JsonConvert.SerializeObject(data)}");
 
                     // Upsert the user
-                    log.LogInformation($"Attempting to upsert user with TenantId: {data.TenantId}");
-                    ItemResponse<UserRequest> userResponse = await userContainer.UpsertItemAsync(data, new PartitionKey(data.TenantId));
+                    log.LogInformation($"Attempting to upsert user with UserId: {data.UserId}");
+                    ItemResponse<UserRequest> userResponse = await userContainer.UpsertItemAsync(data, new PartitionKey(data.UserId));
                     log.LogInformation("User upserted successfully.");
                     return new OkObjectResult(userResponse.Resource);
                 }
@@ -92,7 +92,7 @@ namespace Company.Function
     public class UserRequest
     {
         public string Id { get; set; }
-        public string TenantId { get; set; }
+        public string UserId { get; set; }
         public string DisplayName { get; set; }
         public string RoadmapId { get; set; }
     }
