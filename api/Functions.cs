@@ -19,7 +19,7 @@ namespace Company.Function
         public static async Task<IActionResult> FetchRoadmap(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roadmap")] HttpRequest req)
         {
-            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", new ManagedIdentityCredential());
+            CosmosClient client = new CosmosClient("<InputYourCosmosClientHere>", new ManagedIdentityCredential());
             Container container = client.GetContainer("competence", "roadmap") ?? throw new NullReferenceException();
 
             FeedIterator<Node> queryResultSetIterator = container.GetItemQueryIterator<Node>();
@@ -47,7 +47,7 @@ namespace Company.Function
             log.LogInformation($"Request Path: {req.Path}");
             log.LogInformation($"Request Headers: {JsonConvert.SerializeObject(req.Headers)}");
 
-            CosmosClient client = new CosmosClient("https://cosmos-competence-test.documents.azure.com:443/", new ManagedIdentityCredential());
+            CosmosClient client = new CosmosClient("<InputYourCosmosClientHere>", new ManagedIdentityCredential());
             Container userContainer = client.GetContainer("competence", "users") ?? throw new NullReferenceException("User container not found");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
